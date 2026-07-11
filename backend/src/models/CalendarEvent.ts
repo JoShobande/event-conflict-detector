@@ -1,3 +1,5 @@
+import { timeToMinutes } from "../utils/timeToMinutes";
+
 export type CalendarEventData = {
   id: string;
   title: string;
@@ -24,9 +26,10 @@ export class CalendarEvent {
   }
 
   overlaps(otherEvent: CalendarEvent): boolean {
-    // logic goes here
-    // starttime of other event less than
+    let isConflict =
+      timeToMinutes(this.startTime) < timeToMinutes(otherEvent.endTime) &&
+      timeToMinutes(otherEvent.startTime) < timeToMinutes(this.endTime);
 
-    return true;
+    return isConflict;
   }
 }
