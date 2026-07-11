@@ -1,3 +1,4 @@
+import { time } from "node:console";
 import { timeToMinutes } from "../utils/timeToMinutes";
 
 export type CalendarEventData = {
@@ -17,6 +18,9 @@ export class CalendarEvent {
   conflictsWith: string[];
 
   constructor(data: CalendarEventData) {
+    if (timeToMinutes(data.startTime) >= timeToMinutes(data.endTime)) {
+      throw new Error("End Time must be greater than Start time");
+    }
     this.id = data.id;
     this.title = data.title;
     this.date = data.date;
