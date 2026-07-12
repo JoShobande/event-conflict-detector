@@ -1,9 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import type { CreateCalenderEvent } from "../types/CalenderEvents";
 import { timeToMinutes } from "../utils/timeToMinutes";
 
 type EventFormProps = {
-  onSubmit: (data: CreateCalenderEvent) => void;
+  onSubmit: (data: CreateCalenderEvent) => Promise<void>;
 };
 
 const EventForm = ({ onSubmit }: EventFormProps) => {
@@ -14,12 +14,13 @@ const EventForm = ({ onSubmit }: EventFormProps) => {
     endTime: "",
   });
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const handleChange = (field: keyof CreateCalenderEvent, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (timeToMinutes(formData.startTime) >= timeToMinutes(formData.endTime)) {
@@ -28,7 +29,9 @@ const EventForm = ({ onSubmit }: EventFormProps) => {
     }
 
     setValidationError(null);
-    onSubmit(formData);
+    setIsSubmitting(true);
+    await onSubmit(formData);
+    setIsSubmitting(false);
     setFormData({ title: "", date: "", startTime: "", endTime: "" });
   };
 
@@ -80,7 +83,9 @@ const EventForm = ({ onSubmit }: EventFormProps) => {
 
       {validationError && <p className="form-error">{validationError}</p>}
 
-      <button type="submit">Add Event</button>
+      <button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Adding..." : "Add Event"}
+      </button>
     </form>
   );
 };

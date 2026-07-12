@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { CalendarEvent } from "../types/CalenderEvents";
 
 type EventCardProps = {
@@ -6,6 +7,7 @@ type EventCardProps = {
 };
 
 const EventCard = ({ event, onDelete }: EventCardProps) => {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState<boolean>(false);
   const isConflicting = event.conflictsWith.length > 0;
 
   return (
@@ -22,9 +24,27 @@ const EventCard = ({ event, onDelete }: EventCardProps) => {
       </span>
       <span className="event-title">{event.title}</span>
       {isConflicting && <span className="conflict-flag">Conflict</span>}
-      <button className="delete-btn" onClick={() => onDelete(event.id)}>
-        Delete
-      </button>
+
+      {isConfirmingDelete ? (
+        <span className="confirm-delete">
+          <button className="confirm-btn" onClick={() => onDelete(event.id)}>
+            Confirm
+          </button>
+          <button
+            className="cancel-btn"
+            onClick={() => setIsConfirmingDelete(false)}
+          >
+            Cancel
+          </button>
+        </span>
+      ) : (
+        <button
+          className="delete-btn"
+          onClick={() => setIsConfirmingDelete(true)}
+        >
+          Delete
+        </button>
+      )}
     </div>
   );
 };

@@ -260,3 +260,27 @@ body {
   border-left-color: var(--conflict);
   background: var(--conflict-bg);
 }
+
+.confirm-delete {
+  display: flex;
+  gap: 6px;
+}
+
+.confirm-btn {
+  background: var(--conflict);
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: none;
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: pointer;
+}
