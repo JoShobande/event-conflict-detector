@@ -5,6 +5,11 @@ export const detectConflicts = (events: CalendarEvent[]) => {
   let sortedEvents = events.sort(
     (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime),
   );
+
+  sortedEvents.forEach((event) => {
+    event.conflictsWith = [];
+  });
+
   for (let i = 0; i < sortedEvents.length; i++) {
     for (let j = 0; j < i; j++) {
       if (sortedEvents[i].overlaps(sortedEvents[j])) {

@@ -34,6 +34,11 @@ export class EventStore {
     this.#events.delete(id);
     this.#byDate.get(eventToRemove.date)?.delete(id);
 
+    const bucket = this.#byDate.get(eventToRemove.date);
+    if (bucket && bucket.size === 0) {
+      this.#byDate.delete(eventToRemove.date);
+    }
+
     this.#recalculateConflicts(eventToRemove.date);
     return eventToRemove;
   }
