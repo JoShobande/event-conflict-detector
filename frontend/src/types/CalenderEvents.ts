@@ -16,4 +16,5 @@ export type CreateCalenderEvent = {
   title: string;
   date: string;
   startTime: string;
+  endTime: string;
 };
