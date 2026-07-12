@@ -11,16 +11,20 @@ type TimelineProps = {
 const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [conflictsOnly, setConflictsOnly] = useState<boolean>(false);
+  const [startDateFilter, setStartDateFilter] = useState<string>("");
+  const [endDateFilter, setEndDateFilter] = useState<string>("");
 
   const handleSelectDate = (date: string) => {
     setSelectedDate(date);
   };
 
-  const filteredGroupedEvents = conflictsOnly
-    ? groupedEvents.filter((day) =>
-        day.events.some((event) => event.conflictsWith.length > 0),
-      )
-    : groupedEvents;
+  const filteredGroupedEvents = groupedEvents.filter((day) => {
+    const matchesConflict =
+      !conflictsOnly || day.events.some((e) => e.conflictsWith.length > 0);
+    const matchesStart = !startDateFilter || day.date >= startDateFilter;
+    const matchesEnd = !endDateFilter || day.date <= endDateFilter;
+    return matchesConflict && matchesStart && matchesEnd;
+  });
 
   const totalEvents = filteredGroupedEvents.reduce(
     (sum, day) => sum + day.events.length,
@@ -33,7 +37,7 @@ const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
     0,
   );
 
-  const busiestDay = groupedEvents.reduce<CalendarEventByDate | null>(
+  const busiestDay = filteredGroupedEvents.reduce<CalendarEventByDate | null>(
     (busiest, day) => {
       if (!busiest || day.events.length > busiest.events.length) {
         return day;
@@ -45,21 +49,39 @@ const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
 
   return (
     <div>
-      <label
+      <div
         style={{
           display: "flex",
-          alignItems: "center",
-          gap: "6px",
+          gap: "12px",
           marginBottom: "16px",
+          alignItems: "center",
         }}
       >
-        <input
-          type="checkbox"
-          checked={conflictsOnly}
-          onChange={(e) => setConflictsOnly(e.target.checked)}
-        />
-        Show conflicts only
-      </label>
+        <label>
+          From:{" "}
+          <input
+            type="date"
+            value={startDateFilter}
+            onChange={(e) => setStartDateFilter(e.target.value)}
+          />
+        </label>
+        <label>
+          To:{" "}
+          <input
+            type="date"
+            value={endDateFilter}
+            onChange={(e) => setEndDateFilter(e.target.value)}
+          />
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <input
+            type="checkbox"
+            checked={conflictsOnly}
+            onChange={(e) => setConflictsOnly(e.target.checked)}
+          />
+          Conflicts only
+        </label>
+      </div>
       <div className="summary-strip">
         <span>
           <strong>{totalEvents}</strong> events
