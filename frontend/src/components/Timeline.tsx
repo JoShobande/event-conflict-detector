@@ -10,17 +10,24 @@ type TimelineProps = {
 
 const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [conflictsOnly, setConflictsOnly] = useState<boolean>(false);
 
   const handleSelectDate = (date: string) => {
     setSelectedDate(date);
   };
 
-  const totalEvents = groupedEvents.reduce(
+  const filteredGroupedEvents = conflictsOnly
+    ? groupedEvents.filter((day) =>
+        day.events.some((event) => event.conflictsWith.length > 0),
+      )
+    : groupedEvents;
+
+  const totalEvents = filteredGroupedEvents.reduce(
     (sum, day) => sum + day.events.length,
     0,
   );
 
-  const totalConflicts = groupedEvents.reduce(
+  const totalConflicts = filteredGroupedEvents.reduce(
     (sum, day) =>
       sum + day.events.filter((e) => e.conflictsWith.length > 0).length,
     0,
@@ -38,6 +45,21 @@ const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
 
   return (
     <div>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          marginBottom: "16px",
+        }}
+      >
+        <input
+          type="checkbox"
+          checked={conflictsOnly}
+          onChange={(e) => setConflictsOnly(e.target.checked)}
+        />
+        Show conflicts only
+      </label>
       <div className="summary-strip">
         <span>
           <strong>{totalEvents}</strong> events
@@ -50,10 +72,10 @@ const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
         </span>
       </div>
 
-      {groupedEvents.length === 0 ? (
+      {filteredGroupedEvents.length === 0 ? (
         <p>No events yet. Add one above.</p>
       ) : (
-        groupedEvents.map((day) => (
+        filteredGroupedEvents.map((day) => (
           <DaySection
             key={day.date}
             date={day.date}
@@ -68,7 +90,8 @@ const Timeline = ({ groupedEvents, onDelete }: TimelineProps) => {
         <DayDetailModal
           date={selectedDate}
           events={
-            groupedEvents.find((day) => day.date === selectedDate)?.events ?? []
+            filteredGroupedEvents.find((day) => day.date === selectedDate)
+              ?.events ?? []
           }
           onClose={() => setSelectedDate(null)}
         />
